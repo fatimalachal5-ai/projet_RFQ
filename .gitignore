@@ -1,0 +1,32 @@
+# Environnement virtuel
+venv/
+env/
+ENV/
+
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Fichier de configuration secret
+.env
+
+# IDE
+.vscode/
+.idea/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Base de données locale
+*.db
+*.sqlite3
+
+# Fichiers temporaires
+~$*
+*.tmp

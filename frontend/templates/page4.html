@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Page 4 - Processus de Production{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 4 %}active{% elif i < 4 %}completed{% endif %}" id="circle{{ i }}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 4 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">04</span>
+    <h2 class="page-title">Processus de Production</h2>
+</div>
+<p class="page-subtitle">Paramètres machine et main d'œuvre.</p>
+
+<form method="POST" action="{{ url_for('main.page4') }}" id="processForm">
+    <div class="table-responsive">
+        <table class="table table-pro" id="processTable">
+            <thead>
+                <tr>
+                    <th style="width:8%">Process</th>
+                    <th style="width:14%">Description</th>
+                    <th style="width:12%">Machine</th>
+                    <th style="width:10%">Cycle (sec)</th>
+                    <th style="width:10%">Pièces/Cycle</th>
+                    <th style="width:10%">Opérateurs</th>
+                    <th style="width:12%">Taux MO (€/h)</th>
+                    <th style="width:12%">Taux Machine (€/h)</th>
+                </tr>
+            </thead>
+            <tbody id="processBody">
+                {% if processus and processus|length > 0 %}
+                    {% for proc in processus %}
+                    <tr class="process-row">
+                        <td><span class="fw-bold">{{ '%02d' % loop.index }}</span></td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_desc" 
+                                   value="{{ proc.description if proc.description else '' }}"
+                                   placeholder="Ex: Injection">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_machine" 
+                                   value="{{ proc.machine_type if proc.machine_type else '' }}"
+                                   placeholder="Ex: 50T">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_cycle" 
+                                   value="{{ proc.cycle_time if proc.cycle_time else '' }}"
+                                   placeholder="Ex: 12.5">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_parts" 
+                                   value="{{ proc.parts_per_cycle if proc.parts_per_cycle else '' }}"
+                                   placeholder="Ex: 8">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_manning" 
+                                   value="{{ proc.manning_level if proc.manning_level else '' }}"
+                                   placeholder="Ex: 0.25">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_labour" 
+                                   value="{{ proc.labour_rate if proc.labour_rate else '' }}"
+                                   placeholder="Ex: 6.00">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_{{ loop.index }}_machine_rate" 
+                                   value="{{ proc.machine_rate if proc.machine_rate else '' }}"
+                                   placeholder="Ex: 11.80">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="process-row">
+                        <td><span class="fw-bold">01</span></td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="process_1_desc" 
+                                   placeholder="Ex: Injection">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="process_1_machine" 
+                                   placeholder="Ex: 50T">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_1_cycle" 
+                                   placeholder="Ex: 12.5">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   name="process_1_parts" 
+                                   placeholder="Ex: 8">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_1_manning" 
+                                   placeholder="Ex: 0.25">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_1_labour" 
+                                   placeholder="Ex: 6.00">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="process_1_machine_rate" 
+                                   placeholder="Ex: 11.80">
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Boutons d'action dynamiques -->
+    <div class="d-flex gap-2 mt-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addProcessRow()">
+            <i class="fas fa-plus me-1"></i> Ajouter une ligne
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLastProcessRow()">
+            <i class="fas fa-trash me-1"></i> Supprimer la dernière ligne
+        </button>
+    </div>
+
+    <div class="callout mt-3">
+        <strong>Calcul automatique :</strong> Coût MO = (Cycle / 3600) × Taux MO × Opérateurs / Pièces × 1000<br>
+        <strong>Calcul automatique :</strong> Coût Machine = (Cycle / 3600) × Taux Machine / Pièces × 1000
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(3)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 4;
+
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+
+    function getProcessCount() {
+        return document.querySelectorAll('#processBody .process-row').length;
+    }
+
+    function addProcessRow() {
+        const tbody = document.getElementById('processBody');
+        const rowCount = getProcessCount() + 1;
+        const newRow = document.createElement('tr');
+        newRow.className = 'process-row';
+        newRow.innerHTML = `
+            <td><span class="fw-bold">${String(rowCount).padStart(2, '0')}</span></td>
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="process_${rowCount}_desc" 
+                       placeholder="Ex: Injection">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="process_${rowCount}_machine" 
+                       placeholder="Ex: 50T">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="process_${rowCount}_cycle" 
+                       placeholder="Ex: 12.5">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm" 
+                       name="process_${rowCount}_parts" 
+                       placeholder="Ex: 8">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="process_${rowCount}_manning" 
+                       placeholder="Ex: 0.25">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="process_${rowCount}_labour" 
+                       placeholder="Ex: 6.00">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="process_${rowCount}_machine_rate" 
+                       placeholder="Ex: 11.80">
+            </td>
+        `;
+        tbody.appendChild(newRow);
+        updateProcessRowNumbers();
+    }
+
+    function removeLastProcessRow() {
+        const tbody = document.getElementById('processBody');
+        if (tbody.children.length > 1) {
+            tbody.removeChild(tbody.lastChild);
+            updateProcessRowNumbers();
+        } else {
+            alert('Vous devez garder au moins une ligne de processus.');
+        }
+    }
+
+    function updateProcessRowNumbers() {
+        const rows = document.querySelectorAll('#processBody .process-row');
+        rows.forEach((row, index) => {
+            const numCell = row.querySelector('td:first-child span');
+            if (numCell) {
+                numCell.textContent = String(index + 1).padStart(2, '0');
+            }
+            const inputs = row.querySelectorAll('input');
+            const num = index + 1;
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    const baseName = name.replace(/process_\d+_/, `process_${num}_`);
+                    input.setAttribute('name', baseName);
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateProcessRowNumbers();
+    });
+</script>
+{% endblock %}

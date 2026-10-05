@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Page 5 - Taux & Frais Généraux{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 5 %}active{% elif i < 5 %}completed{% endif %}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 5 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">05</span>
+    <h2 class="page-title">Taux & Frais Généraux</h2>
+</div>
+<p class="page-subtitle">Définissez les taux d'overhead et de rebut.</p>
+
+<form method="POST" action="{{ url_for('main.page5') }}">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Overhead Matière (%)</label>
+            <input type="number" step="any" class="form-control" name="overhead_mat" 
+                   value="{{ data.overhead_mat|default('') }}" placeholder="Ex: 5.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Overhead Production (%)</label>
+            <input type="number" step="any" class="form-control" name="overhead_prod" 
+                   value="{{ data.overhead_prod|default('') }}" placeholder="Ex: 5.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Scrap Rate (%)</label>
+            <input type="number" step="any" class="form-control" name="scrap_rate" 
+                   value="{{ data.scrap_rate|default('') }}" placeholder="Ex: 3.0">
+        </div>
+    </div>
+
+    <!-- ✅ NOUVEAU : Scrap manuel -->
+    <div class="row g-3 mt-3">
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="scrap_manuel_check" name="scrap_manuel_check"
+                       {% if data.scrap_manuel_check %}checked{% endif %}>
+                <label class="form-check-label" for="scrap_manuel_check">
+                    <strong>Utiliser un scrap saisi manuellement (€/1000 pcs)</strong>
+                </label>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Scrap manuel (€/1000 pcs)</label>
+            <input type="number" step="any" class="form-control" name="scrap_manuel_valeur"
+                   value="{{ data.scrap_manuel_valeur|default('') }}"
+                   placeholder="Ex: 0.22">
+            <small class="text-muted">Si coché, cette valeur remplace le calcul automatique.</small>
+        </div>
+    </div>
+
+    <div class="callout mt-3">
+        <strong>Calcul automatique :</strong><br>
+        Overhead Matière = (Total Matière + Total Buy-Parts) × Overhead Matière %<br>
+        Overhead Production = (Labour Cost + Machine Cost) × Overhead Production %<br>
+        Scrap = (Total Matière après overhead × Scrap %) + (Total Production après overhead × Scrap %)
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(4)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 5;
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+</script>
+{% endblock %}

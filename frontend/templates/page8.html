@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Page 8 - Transport & Laboratory Test{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 8 %}active{% elif i < 8 %}completed{% endif %}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 8 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">08</span>
+    <h2 class="page-title">Transport & Laboratory Test</h2>
+</div>
+<p class="page-subtitle">Renseignez le mode de transport et les frais de laboratoire.</p>
+
+<form method="POST" action="{{ url_for('main.page8') }}">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Incoterms <span class="text-danger">*</span></label>
+            <select class="form-select" name="incoterms">
+                <option value="DAP" {% if data.incoterms == 'DAP' %}selected{% endif %}>DAP (Delivered At Place)</option>
+                <option value="FCA" {% if data.incoterms == 'FCA' %}selected{% endif %}>FCA (Free Carrier)</option>
+                <option value="EXW" {% if data.incoterms == 'EXW' %}selected{% endif %}>EXW (Ex Works)</option>
+                <option value="CIF" {% if data.incoterms == 'CIF' %}selected{% endif %}>CIF (Cost, Insurance & Freight)</option>
+                <option value="FOB" {% if data.incoterms == 'FOB' %}selected{% endif %}>FOB (Free On Board)</option>
+                <option value="CPT" {% if data.incoterms == 'CPT' %}selected{% endif %}>CPT (Carriage Paid To)</option>
+                <option value="CIP" {% if data.incoterms == 'CIP' %}selected{% endif %}>CIP (Carriage & Insurance Paid To)</option>
+                <option value="DDP" {% if data.incoterms == 'DDP' %}selected{% endif %}>DDP (Delivered Duty Paid)</option>
+            </select>
+            <small class="text-muted">Ajoutez éventuellement le lieu : DAP KOSTAL Tanger</small>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Coût Transport (€/1000pcs)</label>
+            <input type="number" step="any" class="form-control" name="cout_transport" value="{{ data.cout_transport|default('') }}" placeholder="Ex: 0.21">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Laboratory Test (€/1000pcs) <span class="badge-pro">Nouveau</span></label>
+            <input type="number" step="any" class="form-control" name="laboratory_test" value="{{ data.laboratory_test|default('') }}" placeholder="Ex: 0.15">
+        </div>
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(7)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 8;
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+</script>
+{% endblock %}

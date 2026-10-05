@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Page 11 - LTA / Remise{% endblock %}
+
+{% block content %}
+<!-- Barre de progression (11 étapes) -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 12) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 11 %}active{% elif i < 11 %}completed{% endif %}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 11 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé', 'LTA'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">11</span>
+    <h2 class="page-title">LTA / Remise commerciale</h2>
+</div>
+<p class="page-subtitle">Appliquez une réduction sur le prix total ou sur le prix hors matière première.</p>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="form-card">
+            <form method="POST" action="{{ url_for('main.page11') }}">
+                <div class="row g-3">
+                    <!-- Type de remise -->
+                    <div class="col-12">
+                        <label class="form-label">Type de réduction <span class="text-danger">*</span></label>
+                        <select class="form-select" name="type_remise" required>
+                            <option value="">-- Sélectionnez --</option>
+                            <option value="prix_total" {% if remise_data.type_remise == 'prix_total' %}selected{% endif %}>
+                                Sur le prix total
+                            </option>
+                            <option value="hors_matiere" {% if remise_data.type_remise == 'hors_matiere' %}selected{% endif %}>
+                                Sur le prix hors matière première
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Pourcentage -->
+                    <div class="col-md-6">
+                        <label class="form-label">Pourcentage (%) <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" class="form-control" name="pourcentage" 
+                               value="{{ remise_data.pourcentage|default('') }}" 
+                               placeholder="Ex: 3.5" required>
+                    </div>
+
+                    <!-- Nom de la remise -->
+                    <div class="col-md-6">
+                        <label class="form-label">Nom de la remise</label>
+                        <input type="text" class="form-control" name="nom_remise" 
+                               value="{{ remise_data.nom_remise|default('Remise commerciale') }}" 
+                               placeholder="Ex: LTA - 1 an">
+                    </div>
+
+                    <!-- Boutons -->
+                    <div class="col-12 d-flex gap-2 mt-3">
+                        <button type="submit" class="btn-gradient">
+                            <i class="fas fa-calculator me-2"></i> Appliquer la remise
+                        </button>
+                        <a href="{{ url_for('main.reset_remise') }}" class="btn-outline-pro">
+                            <i class="fas fa-undo me-2"></i> Réinitialiser
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Résultat de la remise -->
+    <div class="col-md-5">
+        <div style="background:white;border-radius:18px;padding:20px 24px;border:1px solid #e2e8f0;">
+            <h5 class="fw-bold"><i class="fas fa-file-invoice-dollar text-primary me-2"></i>Résultat</h5>
+            <hr>
+
+            {% if remise_data %}
+                <div class="mb-2">
+                    <small class="text-muted">Type de remise</small>
+                    <p class="fw-bold">
+                        {% if remise_data.type_remise == 'prix_total' %}
+                            Sur le prix total
+                        {% else %}
+                            Sur le prix hors matière
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Nom</small>
+                    <p class="fw-bold">{{ remise_data.nom_remise }}</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Pourcentage</small>
+                    <p class="fw-bold text-danger">{{ remise_data.pourcentage }}%</p>
+                </div>
+                <hr>
+                <div class="mb-2">
+                    <small class="text-muted">Prix avant réduction</small>
+                    <p class="fw-bold">{{ remise_data.prix_avant }} €</p>
+                </div>
+                <div class="mb-2">
+                    <small class="text-muted">Montant de la réduction</small>
+                    <p class="fw-bold text-danger">- {{ remise_data.montant_reduction }} €</p>
+                </div>
+                <hr>
+                <div class="mb-2">
+                    <small class="text-muted">Prix après réduction</small>
+                    <p class="fw-bold fs-4 text-success">{{ remise_data.prix_apres }} €</p>
+                </div>
+            {% else %}
+                <p class="text-muted text-center py-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Aucune remise appliquée.<br>
+                    Remplissez le formulaire pour calculer.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Informations de base -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div style="background:#f8fafc;border-radius:18px;padding:16px 20px;border:1px solid #e2e8f0;">
+            <small class="text-muted">Prix total actuel</small>
+            <p class="fw-bold fs-5">{{ prix_total }} € / 1000 pcs</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div style="background:#f8fafc;border-radius:18px;padding:16px 20px;border:1px solid #e2e8f0;">
+            <small class="text-muted">Prix hors matière</small>
+            <p class="fw-bold fs-5">{{ prix_hors_matiere }} € / 1000 pcs</p>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation -->
+<div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+    <button type="button" class="btn-outline-pro" onclick="goToStep(10)">
+        <i class="fas fa-arrow-left me-2"></i>Retour au résumé
+    </button>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('main.generer_excel') }}?apply_remise=true" class="btn-success-pro">
+            <i class="fas fa-file-excel me-2"></i> Générer Excel (avec remise)
+        </a>
+    </div>
+</div>
+
+<script>
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10', '/page11'];
+        if (step >= 1 && step <= 11) window.location.href = pages[step];
+    }
+</script>
+{% endblock %}

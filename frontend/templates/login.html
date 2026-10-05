@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFQ Pro - Connexion</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef2f7 0%, #d9e2ef 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .login-container {
+            max-width: 1000px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: 0 30px 70px -20px rgba(15, 23, 42, 0.35);
+            display: flex;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.4);
+        }
+
+        /* PARTIE GAUCHE - Branding */
+        .login-brand {
+            background: linear-gradient(145deg, #0f172a, #1e293b);
+            padding: 48px 40px;
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-brand::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(37, 99, 235, 0.08);
+            border-radius: 50%;
+            bottom: -100px;
+            right: -100px;
+        }
+        .login-brand .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            z-index: 1;
+        }
+        .login-brand .brand-logo .icon-box {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 12px 24px -10px rgba(37, 99, 235, 0.4);
+        }
+        .login-brand .brand-logo h1 {
+            color: white;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin: 0;
+        }
+        .login-brand .brand-logo h1 span { color: #60a5fa; }
+        .login-brand .brand-tagline {
+            color: #94a3b8;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+            z-index: 1;
+            max-width: 80%;
+        }
+        .login-brand .brand-features {
+            margin-top: 40px;
+            z-index: 1;
+        }
+        .login-brand .brand-features .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .login-brand .brand-features .feature-item i {
+            color: #fbbf24;
+            font-size: 18px;
+            width: 24px;
+        }
+        .login-brand .version-footer {
+            margin-top: auto;
+            z-index: 1;
+            color: #475569;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+
+        /* PARTIE DROITE - Formulaire */
+        .login-form {
+            width: 55%;
+            padding: 56px 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+        }
+        .login-form .form-header { margin-bottom: 32px; }
+        .login-form .form-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+        }
+        .login-form .form-header p {
+            color: #64748b;
+            font-size: 15px;
+            margin-top: 6px;
+        }
+
+        .login-form .form-group { margin-bottom: 20px; }
+        .login-form .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .login-form .form-group .input-group-custom { position: relative; }
+        .login-form .form-group .input-group-custom i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 18px;
+        }
+        .login-form .form-group input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            background: #f8fafc;
+            transition: 0.25s;
+            color: #0f172a;
+        }
+        .login-form .form-group input:focus {
+            border-color: #2563eb;
+            background: white;
+            box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.12);
+            outline: none;
+        }
+
+        .login-form .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 4px;
+            margin-bottom: 28px;
+        }
+        .login-form .form-options .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .login-form .form-options .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #2563eb;
+            border-radius: 6px;
+        }
+        .login-form .form-options a {
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .login-form .form-options a:hover { text-decoration: underline; }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 10px 24px -8px rgba(37, 99, 235, 0.4);
+            transition: 0.25s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-login:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 32px -10px rgba(37, 99, 235, 0.5);
+        }
+
+        .login-form .signup-link {
+            text-align: center;
+            margin-top: 24px;
+            color: #64748b;
+            font-size: 14px;
+        }
+        .login-form .signup-link a {
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        /* ALERTE ERREUR */
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            border-radius: 16px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+        .alert-error.show { display: flex; }
+
+        /* MESSAGES FLASH */
+        .alert {
+            border-radius: 16px;
+            padding: 12px 18px;
+            font-weight: 500;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .login-container { flex-direction: column; max-width: 420px; border-radius: 28px; }
+            .login-brand { width: 100%; padding: 32px 28px; border-radius: 28px 28px 0 0; }
+            .login-brand .brand-tagline { max-width: 100%; }
+            .login-brand .brand-features { display: none; }
+            .login-form { width: 100%; padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <!-- PARTIE GAUCHE : Branding -->
+    <div class="login-brand">
+        <div class="brand-logo">
+            <div class="icon-box"><i class="fas fa-file-invoice"></i></div>
+            <h1>RFQ<span>Pro</span></h1>
+        </div>
+        <p class="brand-tagline">
+            Plateforme sécurisée de gestion des <strong>Cost Breakdown</strong>.<br>
+            Connectez-vous pour accéder à vos devis.
+        </p>
+        <div class="brand-features">
+            <div class="feature-item"><i class="fas fa-shield-alt"></i> Accès sécurisé & chiffré</div>
+            <div class="feature-item"><i class="fas fa-history"></i> Historique de vos projets</div>
+            <div class="feature-item"><i class="fas fa-file-excel"></i> Génération Excel en 1 clic</div>
+            <div class="feature-item"><i class="fas fa-users"></i> Gestion multi-utilisateurs</div>
+        </div>
+        <div class="version-footer">
+            <i class="fas fa-circle-check text-success me-1"></i> Version 7.0 · Plasticum Group
+        </div>
+    </div>
+
+    <!-- PARTIE DROITE : Formulaire -->
+    <div class="login-form">
+        <div class="form-header">
+            <h2>Bonjour 👋</h2>
+            <p>Entrez vos identifiants pour accéder au tableau de bord.</p>
+        </div>
+
+        <!-- Affichage des messages flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Formulaire de connexion -->
+        <form method="POST" action="{{ url_for('auth.login') }}">
+            <div class="form-group">
+                <label for="username">Identifiant</label>
+                <div class="input-group-custom">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username" placeholder="ex: habib.znagui" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <div class="input-group-custom">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember" checked> Se souvenir de moi
+                </label>
+                <a href="#">Mot de passe oublié ?</a>
+            </div>
+
+            <button type="submit" class="btn-login">
+                <i class="fas fa-arrow-right-to-bracket"></i> Se connecter
+            </button>
+        </form>
+
+        <p class="signup-link">
+            Vous n'avez pas de compte ?
+            <a href="mailto:habib@plasticum.com?subject=Demande de création de compte RFQ Pro">
+                Contacter l'administrateur
+            </a>
+        </p>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

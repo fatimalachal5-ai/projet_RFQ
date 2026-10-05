@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Page 10 - Résumé & Génération{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 10 %}active{% elif i < 10 %}completed{% endif %}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 10 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">10</span>
+    <h2 class="page-title">Résumé & Génération</h2>
+</div>
+<p class="page-subtitle">Vérifiez les coûts avant de générer le fichier Excel.</p>
+
+<div class="row">
+    <div class="col-md-8">
+        <div style="background:white;border-radius:18px;padding:20px 24px;border:1px solid #e2e8f0;">
+            <table class="recap-table w-100">
+                <tr>
+                    <td class="label">Total Matière (€/1000)</td>
+                    <td class="value">{{ resultats.total_matiere|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Total Buy-Parts (€/1000)</td>
+                    <td class="value">{{ resultats.total_buy_parts|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Total Production (€/1000)</td>
+                    <td class="value">{{ resultats.total_production|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Scrap (€/1000)</td>
+                    <td class="value">{{ resultats.total_scrap|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">S&A (€/1000)</td>
+                    <td class="value">{{ resultats.total_sa|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Profit (€/1000)</td>
+                    <td class="value">{{ resultats.total_profit|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Emballage (€/1000)</td>
+                    <td class="value">{{ resultats.emballage|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Transport (€/1000)</td>
+                    <td class="value">{{ resultats.transport|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Laboratory Test (€/1000)</td>
+                    <td class="value">{{ resultats.laboratory_test|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">PPAP (Base) (€/1000)</td>
+                    <td class="value">{{ resultats.ppap_base|default('0.00') }}</td>
+                </tr>
+                <tr>
+                    <td class="label">PPAP Supplémentaire (€/1000)</td>
+                    <td class="value">{{ resultats.ppap_supp|default('0.00') }}</td>
+                </tr>
+                <tr style="border-top:2px solid #e2e8f0;">
+                    <td class="label fw-bold fs-5">TOTAL COUT / 1000 PCS</td>
+                    <td class="value">
+                        <span style="background: linear-gradient(135deg, #f59e0b, #f97316); 
+                                     padding: 12px 24px; 
+                                     border-radius: 16px; 
+                                     display: inline-block; 
+                                     box-shadow: 0 8px 24px -6px rgba(245, 158, 11, 0.4); 
+                                     color: #1e293b;">
+                            <span style="font-size: 14px; font-weight: 500; display: block; opacity: 0.9;">Prix</span>
+                            <span style="font-size: 38px; font-weight: 800; letter-spacing: -1px;">
+                                {{ resultats.total_general|default('0.00') }} €
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-4 text-center d-flex flex-column justify-content-center">
+        <div style="background:#f8fafc;border-radius:18px;padding:20px;border:1px solid #e2e8f0;">
+            <i class="fas fa-chart-pie fa-4x text-primary" style="opacity:0.7;"></i>
+            <p class="mt-2 text-muted small">Répartition des coûts</p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <span class="badge bg-primary">Matière {{ resultats.pct_matiere|default(0) }}%</span>
+                <span class="badge bg-success">Prod {{ resultats.pct_production|default(0) }}%</span>
+                <span class="badge bg-warning text-dark">Marges {{ resultats.pct_marges|default(0) }}%</span>
+                <span class="badge bg-info text-dark">Emballage {{ resultats.pct_emballage|default(0) }}%</span>
+                <span class="badge bg-secondary">Transport {{ resultats.pct_transport|default(0) }}%</span>
+                <span class="badge bg-danger">PPAP {{ resultats.pct_ppap|default(0) }}%</span>
+                <span class="badge bg-dark">Scrap {{ resultats.pct_scrap|default(0) }}%</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION DES BOUTONS -->
+<!-- ============================================================ -->
+<div class="text-center mt-4">
+    <!-- Bouton LTA / Remise -->
+    <a href="{{ url_for('main.page11') }}" class="btn btn-outline-primary me-3" style="border-radius:40px;padding:10px 30px;font-weight:600;">
+        <i class="fas fa-percent me-2"></i> LTA / Remise
+    </a>
+    <!-- Bouton Excel (SANS remise) -->
+    <button class="btn-success-pro" onclick="window.location.href='/generer_excel?apply_remise=false'">
+        <i class="fas fa-file-excel me-2"></i> Générer le fichier Excel (sans remise)
+    </button>
+</div>
+
+<script>
+    const currentStep = 10;
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+</script>
+{% endblock %}

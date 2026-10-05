@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Page 1 - Informations Générales{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps" id="progressSteps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 1 %}active{% endif %}" id="circle{{ i }}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 1 %}active-label{% endif %}" id="label{{ i }}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu de la page -->
+<div class="page-header">
+    <span class="num-badge">01</span>
+    <h2 class="page-title">Informations Générales</h2>
+</div>
+<p class="page-subtitle">Renseignez les données administratives et commerciales du projet.</p>
+
+<form method="POST" action="{{ url_for('main.page1') }}">
+    <div class="form-card">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Fournisseur <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="fournisseur" value="{{ data.fournisseur|default('') }}" placeholder="Ex: Plasticum" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Nom de la pièce <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nom_piece" value="{{ data.nom_piece|default('') }}" placeholder="Ex: Cam follower 2D THP" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Part Number <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="part_number" value="{{ data.part_number|default('') }}" placeholder="Ex: 12133392" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Contact</label>
+                <input type="text" class="form-control" name="contact" value="{{ data.contact|default('') }}" placeholder="Ex: Habib ZNAGUI">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date de l'offre <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" name="date_offre" value="{{ data.date_offre|default('') }}" required>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Devise <span class="text-danger">*</span></label>
+                <select class="form-select" name="devise">
+                    <option value="EUR" {% if data.devise == 'EUR' %}selected{% endif %}>EUR</option>
+                    <option value="USD" {% if data.devise == 'USD' %}selected{% endif %}>USD</option>
+                    <option value="GBP" {% if data.devise == 'GBP' %}selected{% endif %}>GBP</option>
+                    <option value="MAD" {% if data.devise == 'MAD' %}selected{% endif %}>MAD</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Taux de change</label>
+                <input type="number" step="0.0001" class="form-control" name="taux_change" value="{{ data.taux_change|default('') }}" placeholder="Ex: 1.0000">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Quantité (Lifetime) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" name="quantite_vie" value="{{ data.quantite_vie|default('') }}" placeholder="Ex: 2931294" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Quantité par an</label>
+                <input type="number" class="form-control" name="quantite_an" value="{{ data.quantite_an|default('') }}" placeholder="Ex: 570910">
+            </div>
+
+            <!-- ✅ NOUVEAU CHAMP : Delivery Lot Size (OPTIONNEL) -->
+            <div class="col-md-6">
+                <label class="form-label">Delivery Lot Size</label>
+                <input type="number" class="form-control" name="delivery_lot_size" 
+                       value="{{ data.delivery_lot_size|default('') }}" 
+                       placeholder="Ex: 57091">
+                <small class="text-muted">(Lot de livraison utilisé pour l'amortissement du setup. Optionnel si pas de setup.)</small>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Site de production</label>
+                <input type="text" class="form-control" name="site_production" value="{{ data.site_production|default('') }}" placeholder="Ex: Plasticum Maroc Industries - AFZ">
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 1;
+    const totalSteps = 10;
+
+    function updateProgress() {
+        for (let i = 1; i <= totalSteps; i++) {
+            const circle = document.getElementById(`circle${i}`);
+            const label = document.getElementById(`label${i}`);
+            if (circle) {
+                circle.classList.remove('active', 'completed');
+                if (i < currentStep) circle.classList.add('completed');
+                if (i === currentStep) circle.classList.add('active');
+            }
+            if (label) {
+                label.classList.remove('active-label');
+                if (i === currentStep) label.classList.add('active-label');
+            }
+        }
+    }
+
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateProgress();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Page 2 - Matière Première{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 2 %}active{% elif i < 2 %}completed{% endif %}" id="circle{{ i }}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 2 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">02</span>
+    <h2 class="page-title">Matière Première</h2>
+</div>
+<p class="page-subtitle">Saisissez les matières plastiques.</p>
+
+<form method="POST" action="{{ url_for('main.page2') }}" id="matiereForm">
+    <div class="table-responsive">
+        <table class="table table-pro" id="matiereTable">
+            <thead>
+                <tr>
+                    <th style="width:8%">N°</th>
+                    <th style="width:32%">Spécification</th>
+                    <th style="width:20%">Poids Net (g)</th>
+                    <th style="width:20%">Poids Brut (g)</th>
+                    <th style="width:20%">Taux (€/kg)</th>
+                </tr>
+            </thead>
+            <tbody id="matiereBody">
+                <!-- Génère les lignes à partir des données de session -->
+                {% if matieres and matieres|length > 0 %}
+                    {% for mat in matieres %}
+                    <tr class="matiere-row">
+                        <td><span class="fw-bold">{{ '%02d' % loop.index }}</span></td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="matiere_{{ loop.index }}_spec" 
+                                   value="{{ mat.specification if mat.specification else '' }}"
+                                   placeholder="Ex: Tecodur PB70 BK">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="matiere_{{ loop.index }}_poids_net" 
+                                   value="{{ mat.poids_net if mat.poids_net else '' }}"
+                                   placeholder="Ex: 0.09">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="matiere_{{ loop.index }}_poids_brut" 
+                                   value="{{ mat.poids_brut if mat.poids_brut else '' }}"
+                                   placeholder="Ex: 0.406">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="matiere_{{ loop.index }}_taux" 
+                                   value="{{ mat.taux_matiere if mat.taux_matiere else '' }}"
+                                   placeholder="Ex: 2.9295">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <!-- Une seule ligne par défaut si aucune donnée -->
+                    <tr class="matiere-row">
+                        <td><span class="fw-bold">01</span></td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="matiere_1_spec" 
+                                   placeholder="Ex: Tecodur PB70 BK">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="matiere_1_poids_net" 
+                                   placeholder="Ex: 0.09">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="matiere_1_poids_brut" 
+                                   placeholder="Ex: 0.406">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="matiere_1_taux" 
+                                   placeholder="Ex: 2.9295">
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Boutons d'action dynamiques -->
+    <div class="d-flex gap-2 mt-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addMatiereRow()">
+            <i class="fas fa-plus me-1"></i> Ajouter une ligne
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLastMatiereRow()">
+            <i class="fas fa-trash me-1"></i> Supprimer la dernière ligne
+        </button>
+    </div>
+
+    <div class="callout mt-3">
+        <strong>Calcul automatique :</strong> Coût matière = (Poids Brut / 1000) × Taux × 1000 (€/1000pcs)
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(1)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 2;
+
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+
+    // Compter les lignes existantes
+    function getMatiereCount() {
+        return document.querySelectorAll('#matiereBody .matiere-row').length;
+    }
+
+    // Fonction pour ajouter une ligne
+    function addMatiereRow() {
+        const tbody = document.getElementById('matiereBody');
+        const rowCount = getMatiereCount() + 1;
+        const newRow = document.createElement('tr');
+        newRow.className = 'matiere-row';
+        newRow.innerHTML = `
+            <td><span class="fw-bold">${String(rowCount).padStart(2, '0')}</span></td>
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="matiere_${rowCount}_spec" 
+                       placeholder="Ex: Tecodur PB70 BK">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="matiere_${rowCount}_poids_net" 
+                       placeholder="Ex: 0.09">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="matiere_${rowCount}_poids_brut" 
+                       placeholder="Ex: 0.406">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="matiere_${rowCount}_taux" 
+                       placeholder="Ex: 2.9295">
+            </td>
+        `;
+        tbody.appendChild(newRow);
+        updateMatiereRowNumbers();
+    }
+
+    // Fonction pour supprimer la dernière ligne
+    function removeLastMatiereRow() {
+        const tbody = document.getElementById('matiereBody');
+        if (tbody.children.length > 1) {
+            tbody.removeChild(tbody.lastChild);
+            updateMatiereRowNumbers();
+        } else {
+            alert('Vous devez garder au moins une ligne.');
+        }
+    }
+
+    // Fonction pour mettre à jour les numéros de ligne
+    function updateMatiereRowNumbers() {
+        const rows = document.querySelectorAll('#matiereBody .matiere-row');
+        rows.forEach((row, index) => {
+            const numCell = row.querySelector('td:first-child span');
+            if (numCell) {
+                numCell.textContent = String(index + 1).padStart(2, '0');
+            }
+            const inputs = row.querySelectorAll('input');
+            const num = index + 1;
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    const baseName = name.replace(/matiere_\d+_/, `matiere_${num}_`);
+                    input.setAttribute('name', baseName);
+                }
+            });
+        });
+    }
+
+    // Initialiser les numéros au chargement
+    document.addEventListener('DOMContentLoaded', function() {
+        updateMatiereRowNumbers();
+    });
+</script>
+{% endblock %}

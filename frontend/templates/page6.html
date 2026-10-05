@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Page 6 - Marges & Profits{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 6 %}active{% elif i < 6 %}completed{% endif %}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 6 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">06</span>
+    <h2 class="page-title">Marges & Profits (Markups)</h2>
+</div>
+<p class="page-subtitle">Définissez les taux de marge commerciale et de profit.</p>
+
+<form method="POST" action="{{ url_for('main.page6') }}">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">S&A sur Matière (%)</label>
+            <input type="number" step="any" class="form-control" name="sa_mat" value="{{ data.sa_mat|default('') }}" placeholder="Ex: 6.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">S&A sur Buy-Parts (%)</label>
+            <input type="number" step="any" class="form-control" name="sa_buy" value="{{ data.sa_buy|default('') }}" placeholder="Ex: 0.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">S&A sur Production (%)</label>
+            <input type="number" step="any" class="form-control" name="sa_prod" value="{{ data.sa_prod|default('') }}" placeholder="Ex: 6.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Profit sur Matière (%)</label>
+            <input type="number" step="any" class="form-control" name="profit_mat" value="{{ data.profit_mat|default('') }}" placeholder="Ex: 6.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Profit sur Buy-Parts (%)</label>
+            <input type="number" step="any" class="form-control" name="profit_buy" value="{{ data.profit_buy|default('') }}" placeholder="Ex: 0.0">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">Profit sur Production (%)</label>
+            <input type="number" step="any" class="form-control" name="profit_prod" value="{{ data.profit_prod|default('') }}" placeholder="Ex: 6.0">
+        </div>
+    </div>
+
+    <div class="callout mt-3">
+        <strong>Calcul automatique :</strong> S&A et Profit sont appliqués sur Matière, Buy-Parts et Production (avec prise en compte du Scrap).
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(5)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 6;
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+</script>
+{% endblock %}

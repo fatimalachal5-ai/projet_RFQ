@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Page 7 - Emballage{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 7 %}active{% elif i < 7 %}completed{% endif %}" id="circle{{ i }}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 7 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">07</span>
+    <h2 class="page-title">Emballage</h2>
+</div>
+<p class="page-subtitle">Saisissez les informations d'emballage.</p>
+
+<form method="POST" action="{{ url_for('main.page7') }}" id="emballageForm">
+    <div class="table-responsive">
+        <table class="table table-pro" id="emballageTable">
+            <thead>
+                <tr>
+                    <th style="width:40%">Description</th>
+                    <th style="width:20%">Coût/Unité (€)</th>
+                    <th style="width:20%">Pièces/Unité</th>
+                    <th style="width:20%">Cycles</th>
+                </tr>
+            </thead>
+            <tbody id="emballageBody">
+                {% if emballages and emballages|length > 0 %}
+                    {% for emb in emballages %}
+                    <tr class="emballage-row">
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="emb_{{ loop.index }}_desc" 
+                                   value="{{ emb.description if emb.description else '' }}"
+                                   placeholder="Ex: Boxes (KOSTAL)">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="emb_{{ loop.index }}_cout" 
+                                   value="{{ emb.cout_unite if emb.cout_unite else '' }}"
+                                   placeholder="Ex: 0.20">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   name="emb_{{ loop.index }}_pieces" 
+                                   value="{{ emb.pieces_unite if emb.pieces_unite else '' }}"
+                                   placeholder="Ex: 5000">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   name="emb_{{ loop.index }}_cycles" 
+                                   value="{{ emb.cycles if emb.cycles else '' }}"
+                                   placeholder="Ex: 1">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="emballage-row">
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="emb_1_desc" 
+                                   placeholder="Ex: Boxes (KOSTAL)">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="emb_1_cout" 
+                                   placeholder="Ex: 0.20">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   name="emb_1_pieces" 
+                                   placeholder="Ex: 5000">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" 
+                                   name="emb_1_cycles" 
+                                   placeholder="Ex: 1">
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Boutons d'action dynamiques -->
+    <div class="d-flex gap-2 mt-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addEmballageRow()">
+            <i class="fas fa-plus me-1"></i> Ajouter une ligne
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLastEmballageRow()">
+            <i class="fas fa-trash me-1"></i> Supprimer la dernière ligne
+        </button>
+    </div>
+
+    <div class="callout mt-3">
+        <strong>Calcul automatique :</strong> Coût emballage /1000 = (Coût_Unité / Pièces_Unité / Cycles) × 1000
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(6)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 7;
+
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+
+    function getEmballageCount() {
+        return document.querySelectorAll('#emballageBody .emballage-row').length;
+    }
+
+    function addEmballageRow() {
+        const tbody = document.getElementById('emballageBody');
+        const rowCount = getEmballageCount() + 1;
+        const newRow = document.createElement('tr');
+        newRow.className = 'emballage-row';
+        newRow.innerHTML = `
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="emb_${rowCount}_desc" 
+                       placeholder="Ex: Boxes (KOSTAL)">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="emb_${rowCount}_cout" 
+                       placeholder="Ex: 0.20">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm" 
+                       name="emb_${rowCount}_pieces" 
+                       placeholder="Ex: 5000">
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm" 
+                       name="emb_${rowCount}_cycles" 
+                       placeholder="Ex: 1">
+            </td>
+        `;
+        tbody.appendChild(newRow);
+        updateEmballageRowNumbers();
+    }
+
+    function removeLastEmballageRow() {
+        const tbody = document.getElementById('emballageBody');
+        if (tbody.children.length > 1) {
+            tbody.removeChild(tbody.lastChild);
+            updateEmballageRowNumbers();
+        } else {
+            alert('Vous devez garder au moins une ligne.');
+        }
+    }
+
+    function updateEmballageRowNumbers() {
+        const rows = document.querySelectorAll('#emballageBody .emballage-row');
+        rows.forEach((row, index) => {
+            const inputs = row.querySelectorAll('input');
+            const num = index + 1;
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    const baseName = name.replace(/emb_\d+_/, `emb_${num}_`);
+                    input.setAttribute('name', baseName);
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateEmballageRowNumbers();
+    });
+</script>
+{% endblock %}

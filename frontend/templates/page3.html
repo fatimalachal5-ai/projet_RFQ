@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Page 3 - Pièces Achetées{% endblock %}
+
+{% block content %}
+<!-- Barre de progression -->
+<div class="steps-wrapper">
+    <div class="progress-steps">
+        {% for i in range(1, 11) %}
+        <div class="step-item" onclick="goToStep({{ i }})">
+            <div class="step-circle {% if i == 3 %}active{% elif i < 3 %}completed{% endif %}" id="circle{{ i }}">
+                <span>{{ i }}</span>
+            </div>
+            <div class="step-label {% if i == 3 %}active-label{% endif %}">
+                {{ ['Général', 'Matière', 'Buy-Parts', 'Prod', 'Taux', 'Marges', 'Emballage', 'Transport', 'PPAP', 'Résumé'][i-1] }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Contenu -->
+<div class="page-header">
+    <span class="num-badge">03</span>
+    <h2 class="page-title">Pièces Achetées (Buy-Parts)</h2>
+</div>
+<p class="page-subtitle">Composants externes intégrés à la pièce.</p>
+
+<form method="POST" action="{{ url_for('main.page3') }}" id="buyForm">
+    <div class="table-responsive">
+        <table class="table table-pro" id="buyTable">
+            <thead>
+                <tr>
+                    <th style="width:5%">N°</th>
+                    <th style="width:32%">Spécification</th>
+                    <th style="width:18%">Quantité (#/pc)</th>
+                    <th style="width:18%">Prix Unitaire (€/pc)</th>
+                    <th style="width:22%">Fournisseur</th>
+                </tr>
+            </thead>
+            <tbody id="buyBody">
+                {% if buy_parts and buy_parts|length > 0 %}
+                    {% for bp in buy_parts %}
+                    <tr class="buy-row">
+                        <td><span class="fw-bold">{{ '%02d' % loop.index }}</span></td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="buy_{{ loop.index }}_spec" 
+                                   value="{{ bp.specification if bp.specification else '' }}"
+                                   placeholder="Ex: Vis M4">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="buy_{{ loop.index }}_quantite" 
+                                   value="{{ bp.quantite if bp.quantite else '' }}"
+                                   placeholder="1">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="buy_{{ loop.index }}_prix" 
+                                   value="{{ bp.prix_unitaire if bp.prix_unitaire else '' }}"
+                                   placeholder="0.00">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="buy_{{ loop.index }}_fournisseur" 
+                                   value="{{ bp.fournisseur if bp.fournisseur else '' }}"
+                                   placeholder="Nom fournisseur">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr class="buy-row">
+                        <td><span class="fw-bold">01</span></td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="buy_1_spec" 
+                                   placeholder="Ex: Vis M4">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="buy_1_quantite" 
+                                   placeholder="1">
+                        </td>
+                        <td>
+                            <input type="number" step="any" class="form-control form-control-sm" 
+                                   name="buy_1_prix" 
+                                   placeholder="0.00">
+                        </td>
+                        <td>
+                            <input type="text" class="form-control form-control-sm" 
+                                   name="buy_1_fournisseur" 
+                                   placeholder="Nom fournisseur">
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Boutons d'action dynamiques -->
+    <div class="d-flex gap-2 mt-2">
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addBuyRow()">
+            <i class="fas fa-plus me-1"></i> Ajouter une ligne
+        </button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeLastBuyRow()">
+            <i class="fas fa-trash me-1"></i> Supprimer la dernière ligne
+        </button>
+    </div>
+
+    <div class="callout mt-3">
+        <strong>Calcul automatique :</strong> Coût Buy-Part = Quantité × Prix Unitaire × 1000 (€/1000pcs)
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="d-flex justify-content-between mt-4 pt-3" style="border-top:1px solid #e2e8f0;">
+        <button type="button" class="btn-outline-pro" onclick="goToStep(2)">
+            <i class="fas fa-arrow-left me-2"></i>Précédent
+        </button>
+        <button type="submit" class="btn-gradient">
+            Suivant <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+</form>
+
+<script>
+    const currentStep = 3;
+
+    function goToStep(step) {
+        const pages = ['', '/page1', '/page2', '/page3', '/page4', '/page5', '/page6', '/page7', '/page8', '/page9', '/page10'];
+        if (step >= 1 && step <= 10) window.location.href = pages[step];
+    }
+
+    function getBuyCount() {
+        return document.querySelectorAll('#buyBody .buy-row').length;
+    }
+
+    function addBuyRow() {
+        const tbody = document.getElementById('buyBody');
+        const rowCount = getBuyCount() + 1;
+        const newRow = document.createElement('tr');
+        newRow.className = 'buy-row';
+        newRow.innerHTML = `
+            <td><span class="fw-bold">${String(rowCount).padStart(2, '0')}</span></td>
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="buy_${rowCount}_spec" 
+                       placeholder="Ex: Vis M4">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="buy_${rowCount}_quantite" 
+                       placeholder="1">
+            </td>
+            <td>
+                <input type="number" step="any" class="form-control form-control-sm" 
+                       name="buy_${rowCount}_prix" 
+                       placeholder="0.00">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm" 
+                       name="buy_${rowCount}_fournisseur" 
+                       placeholder="Nom fournisseur">
+            </td>
+        `;
+        tbody.appendChild(newRow);
+        updateBuyRowNumbers();
+    }
+
+    function removeLastBuyRow() {
+        const tbody = document.getElementById('buyBody');
+        if (tbody.children.length > 1) {
+            tbody.removeChild(tbody.lastChild);
+            updateBuyRowNumbers();
+        } else {
+            alert('Vous devez garder au moins une ligne.');
+        }
+    }
+
+    function updateBuyRowNumbers() {
+        const rows = document.querySelectorAll('#buyBody .buy-row');
+        rows.forEach((row, index) => {
+            const numCell = row.querySelector('td:first-child span');
+            if (numCell) {
+                numCell.textContent = String(index + 1).padStart(2, '0');
+            }
+            const inputs = row.querySelectorAll('input');
+            const num = index + 1;
+            inputs.forEach(input => {
+                const name = input.getAttribute('name');
+                if (name) {
+                    const baseName = name.replace(/buy_\d+_/, `buy_${num}_`);
+                    input.setAttribute('name', baseName);
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateBuyRowNumbers();
+    });
+</script>
+{% endblock %}
